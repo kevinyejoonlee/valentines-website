@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import exifr from "exifr";
+import sharp from "sharp";
 
 async function pathExists(p) {
   try {
@@ -51,6 +52,8 @@ async function main() {
   }
 
   await generatePhotoMetadata({ projectRoot, photosDir: targetDir });
+  await generateSdrWebPhotos({ projectRoot, photosDir: targetDir });
+  await generatePhotoThumbnails({ projectRoot, photosDir: targetDir });
 }
 
 function toDateOnlyStringFromExif(value) {
@@ -143,6 +146,139 @@ export const photoMetaByFilename = ${JSON.stringify(sortedObject, null, 2)};
 
   await fs.writeFile(outputFile, contents, "utf8");
   console.log(`[sync-assets] Wrote photo metadata → ${path.relative(projectRoot, outputFile)}`);
+}
+
+function toThumbFilename(filename) {
+  // Normalize all thumbnails to .jpg (smaller + broadly supported)
+  return String(filename).replace(/\.[^.]+$/, ".jpg");
+}
+
+function toWebFilename(filename) {
+  // Normalize all web display images to .jpg (smaller + broadly supported)
+  return String(filename).replace(/\.[^.]+$/, ".jpg");
+}
+
+async function loadCanonicalPhotosList({ projectRoot, photosDir }) {
+  let photos = [];
+  try {
+    // Pull the canonical list from app/photos.js (keeps ordering consistent with the UI).
+    const mod = await import(new URL("../app/photos.js", import.meta.url));
+    photos = Array.isArray(mod.photos) ? mod.photos : [];
+  } catch {
+    const entries = await fs.readdir(photosDir, { withFileTypes: true });
+    photos = entries.filter((e) => e.isFile()).map((e) => e.name);
+  }
+  return photos;
+}
+
+async function generateSdrWebPhotos({ projectRoot, photosDir }) {
+  const photosDirExists = await pathExists(photosDir);
+  if (!photosDirExists) return;
+
+  const webDir = path.join(photosDir, "_web");
+  await fs.mkdir(webDir, { recursive: true });
+
+  const photos = await loadCanonicalPhotosList({ projectRoot, photosDir });
+
+  // Big enough for most phones, much smaller than originals.
+  const maxDim = 2200;
+  let generated = 0;
+  let skipped = 0;
+
+  for (const filename of photos) {
+    const from = path.join(photosDir, filename);
+    const exists = await pathExists(from);
+    if (!exists) continue;
+
+    const outName = toWebFilename(filename);
+    const to = path.join(webDir, outName);
+
+    // Skip if web image is newer than source.
+    const alreadyThere = await pathExists(to);
+    if (alreadyThere) {
+      try {
+        const [srcStat, dstStat] = await Promise.all([fs.stat(from), fs.stat(to)]);
+        if (dstStat.mtimeMs >= srcStat.mtimeMs) {
+          skipped += 1;
+          continue;
+        }
+      } catch {
+        // fall through and regenerate
+      }
+    }
+
+    // Convert to SDR (sRGB) and strip HDR/gain-map metadata by re-encoding.
+    await sharp(from)
+      .rotate() // apply EXIF orientation
+      .resize({
+        width: maxDim,
+        height: maxDim,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .toColourspace("srgb")
+      .jpeg({ quality: 80, mozjpeg: true })
+      .toFile(to);
+
+    generated += 1;
+  }
+
+  console.log(
+    `[sync-assets] Generated SDR web photos → public/cindy/_web (generated: ${generated}, skipped: ${skipped})`,
+  );
+}
+
+async function generatePhotoThumbnails({ projectRoot, photosDir }) {
+  const photosDirExists = await pathExists(photosDir);
+  if (!photosDirExists) return;
+
+  const thumbsDir = path.join(photosDir, "_thumbs");
+  await fs.mkdir(thumbsDir, { recursive: true });
+
+  const photos = await loadCanonicalPhotosList({ projectRoot, photosDir });
+  const webDir = path.join(photosDir, "_web");
+
+  const size = 96; // px (good balance for 24–44px dots)
+  let generated = 0;
+  let skipped = 0;
+
+  for (const filename of photos) {
+    const fromWeb = path.join(webDir, toWebFilename(filename));
+    const fromOriginal = path.join(photosDir, filename);
+    const useWeb = await pathExists(fromWeb);
+    const from = useWeb ? fromWeb : fromOriginal;
+
+    const exists = await pathExists(from);
+    if (!exists) continue;
+
+    const thumbName = toThumbFilename(filename);
+    const to = path.join(thumbsDir, thumbName);
+
+    // Skip if thumbnail is newer than the source.
+    const alreadyThere = await pathExists(to);
+    if (alreadyThere) {
+      try {
+        const [srcStat, dstStat] = await Promise.all([fs.stat(from), fs.stat(to)]);
+        if (dstStat.mtimeMs >= srcStat.mtimeMs) {
+          skipped += 1;
+          continue;
+        }
+      } catch {
+        // fall through and regenerate
+      }
+    }
+
+    await sharp(from)
+      .resize(size, size, { fit: "cover" })
+      .toColourspace("srgb")
+      .jpeg({ quality: 62, mozjpeg: true })
+      .toFile(to);
+    generated += 1;
+  }
+
+  console.log(
+    `[sync-assets] Generated photo thumbnails → public/cindy/_thumbs (generated: ${generated}, skipped: ${skipped})`,
+  );
 }
 
 await main();

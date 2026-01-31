@@ -19,3 +19,7 @@ build/
 .next/
 out/
 .vercel/
+
+# Generated photo derivatives (created by npm run sync-assets)
+public/cindy/_thumbs/
+public/cindy/_web/

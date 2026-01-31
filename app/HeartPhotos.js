@@ -213,6 +213,16 @@ function diffDaysUtc(a, b) {
   return Math.floor((a.getTime() - b.getTime()) / msPerDay);
 }
 
+function thumbSrcFor(photo) {
+  const thumbName = String(photo).replace(/\.[^.]+$/, ".jpg");
+  return `/cindy/_thumbs/${thumbName}`;
+}
+
+function webSrcFor(photo) {
+  const webName = String(photo).replace(/\.[^.]+$/, ".jpg");
+  return `/cindy/_web/${webName}`;
+}
+
 export default function HeartPhotos() {
   const [points, setPoints] = useState([]);
   const [zoomedPhoto, setZoomedPhoto] = useState(null);
@@ -520,11 +530,13 @@ export default function HeartPhotos() {
                 aria-label="Zoom photo"
               >
                 <Image
-                  src={`/cindy/${photo}`}
+                  src={thumbSrcFor(photo)}
                   alt="Memory"
                   fill
                   sizes={`${photoSizePx}px`}
                   quality={60}
+                  loading="lazy"
+                  fetchPriority="low"
                   className="photo-img"
                 />
               </button>
@@ -637,7 +649,7 @@ export default function HeartPhotos() {
             })()}
             <div className="lightbox__imgWrap">
               <Image
-                src={`/cindy/${zoomedPhoto}`}
+                src={webSrcFor(zoomedPhoto)}
                 alt="Zoomed memory"
                 fill
                 sizes="100vw"
