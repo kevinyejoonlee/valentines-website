@@ -5,29 +5,184 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #ff6b9d 0%, #c06c84 100%);
+    font-family: 'Arial', sans-serif;
+    background: #FFE4E9;
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    min-height: 100svh;
+    min-height: 100dvh;
+    overflow: hidden;
+    position: relative;
+    display: grid;
+    place-items: center;
 }
 
-.container {
+body.no-scroll {
+    overflow: hidden;
+}
+
+.valentine-card {
+    position: relative;
+    z-index: 50;
+    width: min(92vw, 520px);
+    padding: 18px 18px 16px;
+    border-radius: 18px;
     text-align: center;
-    padding: 2rem;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.14);
+    backdrop-filter: blur(6px);
 }
 
-h1 {
-    color: #c06c84;
-    font-size: 3rem;
-    margin-bottom: 1rem;
+.valentine-card__title {
+    font-size: 28px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    color: #B0003A;
 }
 
-p {
-    color: #666;
-    font-size: 1.2rem;
+.valentine-card__question {
+    font-size: 18px;
+    line-height: 1.35;
+    color: #3A0B1B;
+    margin-bottom: 14px;
+}
+
+.valentine-card__buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.valentine-btn {
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 180ms ease, filter 180ms ease, box-shadow 180ms ease;
+    user-select: none;
+    touch-action: manipulation;
+}
+
+.valentine-btn--yes {
+    background: #FF2D6D;
+    color: white;
+    box-shadow: 0 10px 22px rgba(255, 45, 109, 0.28);
+    position: relative;
+    z-index: 2;
+}
+
+.valentine-btn--yes:hover {
+    filter: brightness(1.02);
+}
+
+.valentine-btn--no {
+    background: rgba(20, 20, 20, 0.75);
+    color: white;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16);
+    position: relative;
+    z-index: 1;
+}
+
+.valentine-card__result {
+    min-height: 1.2em;
+    font-size: 18px;
+    font-weight: 800;
+    color: #B0003A;
+}
+
+.heart-container {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+.photo {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    animation: float 3s ease-in-out infinite;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+.photo:hover {
+    transform: scale(1.2) !important;
+    z-index: 10;
+}
+
+.photo--loading {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.lightbox {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.lightbox.is-open {
+    display: flex;
+}
+
+.lightbox__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(2px);
+}
+
+.lightbox__content {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    max-width: min(92vw, 1100px);
+    max-height: 92vh;
+    width: 92vw;
+}
+
+.lightbox__img {
+    width: 100%;
+    height: auto;
+    max-height: 92vh;
+    object-fit: contain;
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.lightbox__close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(0, 0, 0, 0.55);
+    color: white;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(5deg);
+    }
 }

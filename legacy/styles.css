@@ -1,0 +1,49 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #FFE4E9;
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+.heart-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.photo {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    animation: float 3s ease-in-out infinite;
+    transition: transform 0.3s ease;
+}
+
+.photo:hover {
+    transform: scale(2.5) !important;
+    z-index: 1000;
+    border-radius: 8px;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(5deg);
+    }
+}
+
