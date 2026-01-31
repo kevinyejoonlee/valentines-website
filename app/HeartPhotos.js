@@ -215,12 +215,13 @@ function diffDaysUtc(a, b) {
 
 function thumbSrcFor(photo) {
   const thumbName = String(photo).replace(/\.[^.]+$/, ".jpg");
-  return `/cindy/_thumbs/${thumbName}`;
+  // Use a relative URL so GitHub Pages project paths (/repo/) work.
+  return `cindy/_thumbs/${thumbName}`;
 }
 
 function webSrcFor(photo) {
   const webName = String(photo).replace(/\.[^.]+$/, ".jpg");
-  return `/cindy/_web/${webName}`;
+  return `cindy/_web/${webName}`;
 }
 
 export default function HeartPhotos() {
