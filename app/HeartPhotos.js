@@ -5,6 +5,70 @@ import Image from "next/image";
 import { photos } from "./photos";
 import { photoMetaByFilename, relationshipStartDate } from "./photoMeta.generated";
 
+const memoryCaptionByTakenAt = {
+  "2025-05-07": "first date, confessing, study, dinner, a walk at Earns Bale Park",
+  "2025-05-17": "second date at Cover Notes Cafe, she wore a white hoodie",
+  "2025-05-24":
+    "third date, kibo sushi, Mount Pleasant, asked her to be my gf, 36 questions to fall in love",
+  "2025-05-26": "tea and chat at Login, this was fun",
+  "2025-05-27": "did work together at Cover Notes. Watched eps of The End of the F***ing World",
+  "2025-05-31": "she bought me Daldongnae, Baskin Robbins, remember her nervous look at Login",
+  "2025-06-02": "small walk to malatang, sat at a park bench",
+  "2025-06-07":
+    "Chipotle after Reformed retreat. Whiteboards and stocks. K fest, Severance at Midnight Cafe, park bench great convo",
+  "2025-06-13": "visited her at part time, watched Lilo and Stitch",
+  "2025-06-14": "museums date: AGO, illusions, Chipotle, Login Cafe",
+  "2025-06-17": "pho near my place, walk, my house",
+  "2025-06-25": "movie Materialists at Imagine Cinema, ubered home",
+  "2025-06-28": "made food at hers, went to Toronto Zoo, Haidilao, got a little too comfortable at my house",
+  "2025-07-02":
+    "ate poke bowls, saw a skunk in my garage, watched Severance recaps and ep 5, 15 mins in my bed",
+  "2025-07-03": "Squid Game ep 1, short walk",
+  "2025-07-05": "Earls bar, Indigo, apple pie, first kiss",
+  "2025-07-07": "dinner and Severance",
+  "2025-07-09": "bible study (Youngnak church of Revelations), malatang, HeyTea",
+  "2025-07-11": "Elio",
+  "2025-07-15": "Superman (UltraBox)",
+  "2025-07-16": "bible study (Youngnak)",
+  "2025-07-19": "Hello Greek, KCF PNP",
+  "2025-07-22": "Cafe Landwer, movie at my house",
+  "2025-07-23": "bible study, first time Korean restaurant behind Young Nak, McDonald's",
+  "2025-07-26": "Bready Cafe, reading, terrible pad thai and cookies LOL, barely watched Severance?",
+  "2025-07-30": "GoodLife leg day, McDonald's (diet coke vs coke zero), last Revelations bible study",
+  "2025-07-31": "pho and talked at McDonald's, talked about joint bank accounts",
+  "2025-08-01": "Ward Island, beach, tandem bike, peanut butter cookies",
+  "2025-08-05": "Fantastic Four",
+  "2025-08-07": "quick stop to eat ramen at her work",
+  "2025-08-10": "coffee, Wonderland, steak watermelon. Ice cream from her mom :(. Uhh what?",
+  "2025-08-11": "pho, HMart, short walk to McDonald's",
+  "2025-08-13": "ate Chipotle, met her dad, short walk, watched The Case for Christ at my house",
+  "2025-08-17": "coffee, business zoom, harbourfront, paint by numbers, bake cake, #Alive, start of one week fast",
+  "2025-08-23": "real fruit break fast, spoke, Nakwon, Kream, McDonald's",
+  "2025-08-25": "painting, Kpop Demon Hunters pizza, wore my shorts",
+  "2025-09-13": "farmers market for berries, poke bowls, movie, puzzle, dinner",
+  "2025-09-19": "Ripley's, sushi",
+  "2025-10-10": "ate pho, watched together",
+  "2025-10-12": "Thanksgiving dinner with her parents",
+  "2025-10-14": "carve 🎃, BBQ chicken",
+  "2025-10-15": "puppy yoga, Nakwon, McDonald's",
+  "2025-10-16": "breakfast, lunch, trail (the nut that fell from the tree), movie, the ER",
+  "2025-10-25":
+    "she came over in the afternoon (Serria’s birthday party). Walmart birthday card shopping, Love Is Blind, steak pomegranates",
+  "2025-11-07": "going to Waterloo, tried to crochet, Love Is Blind, KCF, Max was speaking",
+  "2025-11-13": "slept over at her place to go to work the next day",
+  "2025-11-15": "food, crochet, TV, one month, one month fast",
+  "2025-12-13": "Christmas and birthday gifts, tufting, Guybee at 10pm",
+  "2025-12-16": "building desk start, watched Now You See Me",
+  "2025-12-19": "she came after seeing Jane, finished building the desk",
+  "2025-12-20": "coffee with her dad, lunch with her parents, Now You See Me",
+  "2025-12-24": "started a mystery movie, went to Pho Ahn Vu",
+  "2025-12-25": "Christmas service together and good",
+  "2025-12-26": "hung out all day at home. Weather was bad. The flood, finished",
+  "2025-12-30": "evening dinner with Hannah and Daniel, had Demetres after",
+  "2025-12-31": "new years count down at Josh Kwon’s house",
+  "2026-01-01": "ate at Cindy’s house for dinner, sweet treat from Walmart, Codenames, culinary wars",
+};
+
 function mulberry32(seed) {
   let t = seed >>> 0;
   return () => {
@@ -607,6 +671,7 @@ export default function HeartPhotos() {
               const meta = photoMetaByFilename?.[zoomedPhoto] || null;
               const takenAt = parseDateOnly(meta?.takenAt);
               const start = parseDateOnly(relationshipStartDate);
+              const caption = meta?.takenAt ? memoryCaptionByTakenAt[meta.takenAt] : null;
 
               const prettyDate = takenAt
                 ? new Intl.DateTimeFormat("en-US", {
@@ -634,31 +699,36 @@ export default function HeartPhotos() {
               }
 
               return (
-                <div className="lightbox__frame" aria-label="Photo details">
-                  <div className="lightbox__frameRow">
-                    <div className="lightbox__date">{prettyDate}</div>
-                    {relationshipLabel ? (
-                      <div className="lightbox__day">{relationshipLabel}</div>
-                    ) : (
-                      <div className="lightbox__day" aria-hidden="true">
-                        &nbsp;
-                      </div>
-                    )}
+                <>
+                  <div className="lightbox__frame" aria-label="Photo details">
+                    <div className="lightbox__frameRow">
+                      <div className="lightbox__date">{prettyDate}</div>
+                      {relationshipLabel ? (
+                        <div className="lightbox__day">{relationshipLabel}</div>
+                      ) : (
+                        <div className="lightbox__day" aria-hidden="true">
+                          &nbsp;
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+
+                  <div className="lightbox__imgWrap">
+                    <Image
+                      src={webSrcFor(zoomedPhoto)}
+                      alt="Zoomed memory"
+                      fill
+                      sizes="100vw"
+                      quality={85}
+                      priority
+                      className="lightbox__img"
+                    />
+                  </div>
+
+                  {caption ? <figcaption className="lightbox__caption">{caption}</figcaption> : null}
+                </>
               );
             })()}
-            <div className="lightbox__imgWrap">
-              <Image
-                src={webSrcFor(zoomedPhoto)}
-                alt="Zoomed memory"
-                fill
-                sizes="100vw"
-                quality={85}
-                priority
-                className="lightbox__img"
-              />
-            </div>
           </figure>
         </div>
       ) : null}
